@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 import logging
 from typing import List, Dict, Optional
 
-#API_KEY_SEARCH_GOOGLE = AIzaSyC1Dvpq3gNW7uZfsgPIZbC_9O4zV-FRTdI 
-#SEARCH_ENGINE_ID = d3bc0e8b15074411a
 
 # ---------------- Configuración de Logging ----------------
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
