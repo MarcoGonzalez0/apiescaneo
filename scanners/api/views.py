@@ -4,7 +4,7 @@ from ..scanners.dorks import main
 
 from scanners.scanners.dns import DNSResolver
 from scanners.scanners.whois_scan import resolve_whois
-from scanners.scanners.nmap import run_nmap_scan
+from scanners.scanners.nmap_scan import run_nmap_scan
 import json
 from pathlib import Path
 
