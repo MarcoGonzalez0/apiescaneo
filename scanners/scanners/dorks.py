@@ -77,9 +77,15 @@ def main(query: str) -> list:
     #query = 'intitle:"index of" "backup" (.zip | .tar | .gz)'   
     results = perform_google_search(env_vars['api_key'], env_vars['search_engine_id'], query)
 
-    if results:
+    if results: #una [] con {}
         #display_results(results)
-        return results
+
+        resultados = []
+        for r in results:
+            diccionario = {"Titulo": r.get('title'), "Descripcion": r.get('snippet'), "Enlace":r.get('link')}
+            resultados.append(diccionario)
+
+        return resultados
     else:
         logging.info("No se encontraron resultados o ocurrió un error durante la búsqueda.")
     

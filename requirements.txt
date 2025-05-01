@@ -3,4 +3,4 @@ djangorestframework
 python-dotenv
 dnspython
 python-whois
-python-nmap
+
