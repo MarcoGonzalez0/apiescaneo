@@ -67,7 +67,7 @@ def display_results(results: List[Dict]) -> None:
         
 # ---------------- Ejecución Principal ----------------
 #agregar query como parametro desde url
-def main(query: str) -> list:
+def main_dorks(query: str) -> list:
     env_vars = load_env_variables()
     if not env_vars:
         return
