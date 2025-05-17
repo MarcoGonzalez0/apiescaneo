@@ -27,10 +27,10 @@ def escaneo_dns(request):
         if not domain:
             return Response({"error": "Parámetro 'domain' es requerido"}, status=400)
 
-        #dns = DNSResolver(domain)
-        #dns_records = dns.resolve_all()
-        #whois_info = resolve_whois(domain)
-        #nmap_results = []
+        dns = DNSResolver(domain)
+        dns_records = dns.resolve_all()
+        whois_info = resolve_whois(domain)
+        nmap_results = []
 
         #construccion de dorks
         #dork1 para buscar archivos sensibles
@@ -56,18 +56,18 @@ def escaneo_dns(request):
         ia_results = main_ia(resultados)#le paso los resultados de los dorks a main y que me devuelva una lista con los resultados
     
 
-        # if dns_records.get("A"):
-        #     for ip in dns_records["A"]:
-        #         nmap_results.extend(run_nmap_scan(ip))
-        # else:
-        #     for ip in dns.resolve_ns_ips():
-        #         nmap_results.extend(run_nmap_scan(ip))
+        if dns_records.get("A"):
+            for ip in dns_records["A"]:
+                nmap_results.extend(run_nmap_scan(ip))
+        else:
+            for ip in dns.resolve_ns_ips():
+                nmap_results.extend(run_nmap_scan(ip))
 
         report = {
-            #"domain": domain,
-            #"records": dns_records,
-            #"whois": whois_info,
-            #"nmap": nmap_results,
+            "domain": domain,
+            "records": dns_records,
+            "whois": whois_info,
+            "nmap": nmap_results,
             "dork_analisis":ia_results
         }
 

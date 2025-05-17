@@ -1,0 +1,14 @@
+{
+    "dork_analisis": [
+        {
+            "nrodork": 1,
+            "enlace": "https://biblioteca.unach.mx/1.sql",
+            "clasificacion": "Alto",
+            "explicacion": "El enlace apunta a un archivo .sql, lo que podr\u00eda contener informaci\u00f3n sensible como estructura de bases de datos o datos de usuarios.",
+            "mitigacion": [
+                "Restringir el acceso al archivo mediante permisos de servidor.",
+                "Eliminar archivos .sql de directorios p\u00fablicos y almacenarlos en ubicaciones seguras."
+            ]
+        }
+    ]
+}

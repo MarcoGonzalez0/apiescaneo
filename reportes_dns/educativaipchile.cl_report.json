@@ -1,0 +1,109 @@
+{
+    "domain": "educativaipchile.cl",
+    "records": {
+        "A": [
+            "104.154.110.82"
+        ],
+        "AAAA": [],
+        "CNAME": [],
+        "MX": [],
+        "NS": [
+            "secundario.nic.cl.",
+            "ns.datacare.cl."
+        ],
+        "SOA": [
+            "ns.datacare.cl. hostmaster.datacare.cl. 2024020102 3600 900 86400 86400"
+        ],
+        "TXT": [
+            "\"jtkj84x3sy7bns5wb0ly38wgkvh3b2kh\" \".\""
+        ]
+    },
+    "whois": {
+        "registrar": "NIC Chile",
+        "creation_date": "2022-02-23 13:33:41 CLST",
+        "expiration_date": "2026-02-23 13:33:41 CLST",
+        "name_servers": [
+            "ns.datacare.cl",
+            "secundario.nic.cl"
+        ],
+        "status": null,
+        "emails": null,
+        "country": null,
+        "whois_server": null,
+        "updated_date": "None",
+        "domain_name": "educativaipchile.cl"
+    },
+    "nmap": [
+        {
+            "ip": "104.154.110.82",
+            "ports": [
+                {
+                    "port": "21",
+                    "protocol": "tcp",
+                    "state": "open",
+                    "service": {
+                        "name": "tcpwrapped",
+                        "product": "",
+                        "version": ""
+                    }
+                },
+                {
+                    "port": "22",
+                    "protocol": "tcp",
+                    "state": "open",
+                    "service": {
+                        "name": "ssh",
+                        "product": "OpenSSH",
+                        "version": "8.0"
+                    }
+                },
+                {
+                    "port": "80",
+                    "protocol": "tcp",
+                    "state": "open",
+                    "service": {
+                        "name": "http",
+                        "product": "nginx",
+                        "version": "1.14.1"
+                    }
+                },
+                {
+                    "port": "443",
+                    "protocol": "tcp",
+                    "state": "open",
+                    "service": {
+                        "name": "tcpwrapped",
+                        "product": "",
+                        "version": ""
+                    }
+                },
+                {
+                    "port": "5432",
+                    "protocol": "tcp",
+                    "state": "open",
+                    "service": {
+                        "name": "postgresql",
+                        "product": "",
+                        "version": ""
+                    }
+                }
+            ]
+        }
+    ],
+    "dork_analisis": [
+        {
+            "nrodork": 1,
+            "enlace": "https://educativaipchile.cl/login/forgot_password.php",
+            "clasificacion": "Alto",
+            "explicacion": "Exposici\u00f3n de formulario de recuperaci\u00f3n de contrase\u00f1as, potencial vector para ataques de fuerza bruta o phishing.",
+            "mitigacion": "Implementar CAPTCHA y limitar intentos de recuperaci\u00f3n por IP."
+        },
+        {
+            "nrodork": 2,
+            "enlace": "https://educativaipchile.cl/admin/tool/dataprivacy/summary.php",
+            "clasificacion": "Alto",
+            "explicacion": "Panel administrativo expuesto con resumen de privacidad de datos, riesgo de fuga de informaci\u00f3n sensible.",
+            "mitigacion": "Restringir acceso por IP y exigir autenticaci\u00f3n multifactor."
+        }
+    ]
+}
