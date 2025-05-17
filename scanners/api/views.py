@@ -43,10 +43,14 @@ def escaneo_dns(request):
         resultado1 = main_dorks(dork1)
         if resultado1:
             resultados += resultado1
+            print(resultado1)
 
         resultado2 = main_dorks(dork2)
         if resultado2:
             resultados += resultado2
+        print(resultado2)
+      
+
 
 
         ia_results = main_ia(resultados)#le paso los resultados de los dorks a main y que me devuelva una lista con los resultados

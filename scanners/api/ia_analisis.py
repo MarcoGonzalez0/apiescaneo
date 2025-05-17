@@ -3,7 +3,8 @@ import json
 import logging
 import requests
 from dotenv import load_dotenv
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List,Union,Any
+from datetime import datetime
 
 # -------------------- Configuración de Logging --------------------
 logging.basicConfig(
@@ -63,88 +64,92 @@ class DeepSeekClient:
             logging.error(f"Error en la API de DeepSeek: {str(e)}")
             return None
 
+
 # -------------------- Análisis de riesgos --------------------
-def analizar_riesgos_dorks(resultados: list, client: DeepSeekClient) -> Optional[str]:
-    """Analiza los resultados de búsqueda usando DeepSeek"""
+def analizar_riesgos_dorks(resultados: list, client: DeepSeekClient) -> Optional[List[Dict]]:
+    """Analiza resultados y devuelve JSON estructurado con:
+    [
+        {
+            "nrodork": int,
+            "enlace": str,
+            "clasificacion": "Alto/Medio/Bajo",
+            "explicacion": str,
+            "mitigacion": str
+        }
+    ]
+    """
     if not resultados:
         logging.warning("Lista de resultados vacía recibida para análisis")
         return None
 
-    resultados_texto = "\n".join([f"{i+1}. {r}" for i, r in enumerate(resultados)])
+    # Preparar datos para el prompt
+    resultados_texto = "\n".join(
+        f"Dork {i+1}: {r.get('Titulo', 'Sin título')} - Enlace: {r.get('Enlace', 'URL no disponible')}"
+        for i, r in enumerate(resultados)
+    )
 
     prompt = f"""
-Como experto en seguridad informática, analiza los siguientes resultados de búsqueda (dorks) 
-que podrían indicar filtraciones o exposiciones de datos sensibles.
+Como experto en seguridad informática, analiza estos resultados de búsqueda (dorks) 
+y devuelve EXCLUSIVAMENTE un JSON con el siguiente formato para cada elemento:
 
-Para cada entrada:
-1. Clasifica el nivel de riesgo (bajo, medio, alto)
-2. Explica brevemente tu evaluación
-3. Proporciona recomendaciones de acción
+{{
+    "analisis": [
+        {{
+            "nrodork": 1,
+            "enlace": "url_completa",
+            "clasificacion": "Alto/Medio/Bajo",
+            "explicacion": "1-2 oraciones técnicas",
+            "mitigacion": "Acciones concretas (máx 2 puntos)"
+        }}
+    ]
+}}
 
-Resultados a analizar:
+Criterios de clasificación:
+- Alto: Credenciales, archivos .sql/.env, paneles de administración expuestos
+- Medio: Directorios listables, información técnica sensible
+- Bajo: Contenido genérico sin datos sensibles
+
+Datos a analizar:
 {resultados_texto}
 
-Formato de respuesta esperado:
-[Ítem N°] [Tipo de riesgo] - [Breve explicación]
-[Recomendación específica]
-[Línea separadora]
+Importante:
+- Solo incluye el JSON válido, sin texto adicional
+- Usa comillas dobles para las propiedades
+- Mantén el formato exacto solicitado
 """
 
-    return client.analyze_content(prompt)
+    respuesta = client.analyze_content(prompt)
+    
+    if not respuesta:
+        return None
 
-# -------------------- Gestión de reportes --------------------
-def guardar_resumen_json(resumen: str, nombre_archivo: str) -> Optional[str]:
-    """Guarda el resumen de análisis en formato JSON"""
+    if "```json" in respuesta:
+        respuesta = respuesta.split("```json")[1].split("```")[0].strip()
+        
+
     try:
-        os.makedirs("reportes", exist_ok=True)
-        ruta = os.path.join("reportes", f"{nombre_archivo}.json")
-        
-        with open(ruta, "w", encoding="utf-8") as f:
-            json.dump({
-                "fecha_analisis": str(datetime.now()),
-                "resumen": resumen
-            }, f, ensure_ascii=False, indent=4)
-        
-        logging.info(f"Reporte guardado en: {ruta}")
-        return ruta
-    except Exception as e:
-        logging.error(f"Error al guardar el reporte: {str(e)}")
+        datos = json.loads(respuesta)
+        return datos.get("analisis", [])
+    except json.JSONDecodeError:
+        logging.error("La IA no devolvió un JSON válido")
         return None
 
 # -------------------- Función principal --------------------
-def main_ia(resultados: list) -> List[str]:
-    """Flujo principal de análisis de riesgos"""
+def main_ia(resultados: list) -> List[Dict]:
+    """Flujo principal que devuelve directamente el formato estructurado"""
     if not resultados:
-        logging.warning("No se recibieron resultados para analizar")
         return []
 
-    # Cargar configuración
-    env_vars = load_env_variables()
-    if not env_vars:
+    try:
+        env_vars = load_env_variables()
+        if not env_vars:
+            return []
+
+        client = DeepSeekClient(env_vars['deepseek_api_key'])
+        analisis = analizar_riesgos_dorks(resultados, client)
+        
+        return analisis if analisis else []
+
+    except Exception as e:
+        logging.error(f"Error en main_ia: {str(e)}", exc_info=True)
         return []
-
-    # Inicializar cliente DeepSeek
-    client = DeepSeekClient(env_vars['deepseek_api_key'])
-
-    # Realizar análisis
-    resumen = analizar_riesgos_dorks(resultados, client)
-    if not resumen:
-        logging.error("No se pudo obtener el análisis de riesgos")
-        return []
-
-    # Guardar resultados
-    archivo = guardar_resumen_json(resumen, "resumen_dorks")
-    return [archivo] if archivo else []
-
-# Ejemplo de uso
-if __name__ == "__main__":
-    # Datos de ejemplo
-    resultados_ejemplo = [
-        "sitio.com/admin/config.php expuesto",
-        "intranet.corporacion.com sin autenticación",
-        "github.com/empleado/repo con credenciales en código"
-    ]
-    
-    # Ejecutar análisis
-    reportes_generados = main_ia(resultados_ejemplo)
-    print(f"Reportes generados: {reportes_generados}")
